@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jejueo Translator | 제주어 번역기</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+        }
+
+        .language-card {
+            transition: all 0.3s ease;
+        }
+
+        .language-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .textarea-container {
+            position: relative;
+        }
+
+        .textarea-container textarea {
+            min-height: 150px;
+            resize: none;
+        }
+
+        .character-count {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+
+        .history-item {
+            transition: all 0.2s ease;
+        }
+
+        .history-item:hover {
+            background-color: #f3f4f6;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .animate-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="min-h-screen flex flex-col">
+        <!-- Header -->
+        <header class="gradient-bg text-white shadow-lg">
+            <div class="container mx-auto px-4 py-6">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-language text-2xl"></i>
+                        <h1 class="text-2xl font-bold">Jejueo Translator</h1>
+                    </div>
+                    <nav class="hidden md:flex space-x-6">
+                        <a href="#" class="hover:text-blue-200 font-medium">Home</a>
+                        <a href="#" class="hover:text-blue-200 font-medium">About</a>
+                        <a href="#" class="hover:text-blue-200 font-medium">Learn</a>
+                        <a href="#" class="hover:text-blue-200 font-medium">Resources</a>
+                    </nav>
+                    <button class="md:hidden text-xl">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-grow container mx-auto px-4 py-8">
+            <!-- Hero Section -->
+            <section class="mb-12 text-center">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">제주어 번역기</h2>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                    Preserving the unique language of Jeju Island. Translate between Jejueo and Korean/English with our advanced tool.
+                </p>
+            </section>
+
+            <!-- Translation Section -->
+            <section class="mb-12">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Input Section -->
+                    <div class="bg-white rounded-xl shadow-md p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <div class="flex items-center space-x-2">
+                                <span class="w-3 h-3 rounded-full bg-red-500"></span>
+                                <span class="w-3 h-3 rounded-full bg-yellow-500"></span>
+                                <span class="w-3 h-3 rounded-full bg-green-500"></span>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="px-3 py-1 bg-gray-100 rounded-md text-sm hover:bg-gray-200">
+                                    <i class="fas fa-microphone mr-1"></i> Speak
+                                </button>
+                                <button class="px-3 py-1 bg-gray-100 rounded-md text-sm hover:bg-gray-200">
+                                    <i class="fas fa-camera mr-1"></i> Image
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="textarea-container mb-2">
+                            <textarea
+                                id="input-text"
+                                class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                                placeholder="Type text to translate..."></textarea>
+                            <div id="input-count" class="character-count">0/500</div>
+                        </div>
+
+                        <div class="flex flex-wrap justify-between items-center">
+                            <div class="mb-4 md:mb-0">
+                                <label for="source-lang" class="block text-sm font-medium text-gray-700 mb-1">From:</label>
+                                <select id="source-lang" class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="auto">Detect Language</option>
+                                    <option value="jej">Jejueo (제주어)</option>
+                                    <option value="ko">Korean (한국어)</option>
+                                    <option value="en">English</option>
+                                </select>
+                            </div>
+
+                            <button id="swap-languages" class="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
+                                <i class="fas fa-exchange-alt text-gray-600"></i>
+                            </button>
+
+                            <div>
+                                <label for="target-lang" class="block text-sm font-medium text-gray-700 mb-1">To:</label>
+                                <select id="target-lang" class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="jej">Jejueo (제주어)</option>
+                                    <option value="ko" selected>Korean (한국어)</option>
+                                    <option value="en">English</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Output Section -->
+                    <div class="bg-white rounded-xl shadow-md p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <div class="flex items-center space-x-2">
+                                <span class="w-3 h-3 rounded-full bg-gray-300"></span>
+                                <span class="w-3 h-3 rounded-full bg-gray-300"></span>
+                                <span class="w-3 h-3 rounded-full bg-gray-300"></span>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button id="copy-result" class="px-3 py-1 bg-gray-100 rounded-md text-sm hover:bg-gray-200">
+                                    <i class="fas fa-copy mr-1"></i> Copy
+                                </button>
+                                <button class="px-3 py-1 bg-gray-100 rounded-md text-sm hover:bg-gray-200">
+                                    <i class="fas fa-volume-up mr-1"></i> Speak
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="textarea-container mb-2">
+                            <textarea
+                                id="output-text"
+                                readonly
+                                class="w-full p-4 border border-gray-300 rounded-lg bg-gray-50 outline-none"
+                                placeholder="Translation will appear here..."></textarea>
+                            <div id="output-count" class="character-count">0/500</div>
+                        </div>
+
+                        <div class="flex justify-end">
+                            <button id="translate-btn" class="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center">
+                                <i class="fas fa-language mr-2"></i> Translate
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Features Section -->
+            <section class="mb-12">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Why Use Our Jejueo Translator?</h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="language-card bg-white p-6 rounded-xl shadow-md">
+                        <div class="text-blue-600 mb-4">
+                            <i class="fas fa-brain text-3xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Advanced AI</h3>
+                        <p class="text-gray-600">
+                            Our translator uses state-of-the-art machine learning to accurately translate Jejueo, preserving its unique linguistic features.
+                        </p>
+                    </div>
+
+                    <div class="language-card bg-white p-6 rounded-xl shadow-md">
+                        <div class="text-blue-600 mb-4">
+                            <i class="fas fa-book text-3xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Cultural Context</h3>
+                        <p class="text-gray-600">
+                            We include cultural context and explanations to help you understand the nuances of Jejueo expressions.
+                        </p>
+                    </div>
+
+                    <div class="language-card bg-white p-6 rounded-xl shadow-md">
+                        <div class="text-blue-600 mb-4">
+                            <i class="fas fa-history text-3xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Translation History</h3>
+                        <p class="text-gray-600">
+                            Save your translations to review later and track your progress in learning Jejueo.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- History Section -->
+            <section class="mb-12">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold text-gray-800">Recent Translations</h2>
+                    <button class="text-blue-600 hover:text-blue-800 font-medium">View All</button>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                    <div class="divide-y divide-gray-200">
+                        <!-- Sample history items -->
+                        <div class="history-item p-4 hover:cursor-pointer">
+                            <div class="flex justify-between">
+                                <div>
+                                    <p class="font-medium">"감자" (Korean)</p>
+                                    <p class="text-gray-600 text-sm">→ "감저" (Jejueo)</p>
+                                </div>
+                                <div class="text-gray-500 text-sm">2 minutes ago</div>
+                            </div>
+                        </div>
+
+                        <div class="history-item p-4 hover:cursor-pointer">
+                            <div class="flex justify-between">
+                                <div>
+                                    <p class="font-medium">"How are you?" (English)</p>
+                                    <p class="text-gray-600 text-sm">→ "혼저 옵서예" (Jejueo)</p>
+                                </div>
+                                <div class="text-gray-500 text-sm">15 minutes ago</div>
+                            </div>
+                        </div>
+
+                        <div class="history-item p-4 hover:cursor-pointer">
+                            <div class="flex justify-between">
+                                <div>
+                                    <p class="font-medium">"고맙수다" (Jejueo)</p>
+                                    <p class="text-gray-600 text-sm">→ "감사합니다" (Korean)</p>
+                                </div>
+                                <div class="text-gray-500 text-sm">1 hour ago</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- About Jejueo Section -->
+            <section class="mb-12 bg-blue-50 rounded-xl p-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">About Jejueo (제주어)</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <p class="text-gray-700 mb-4">
+                            Jejueo, also called Jeju language, is the traditional language of Jeju Island in South Korea. It differs significantly from standard Korean and is considered by many linguists to be a separate language.
+                        </p>
+                        <p class="text-gray-700 mb-4">
+                            With fewer than 10,000 fluent speakers remaining, mostly elderly, Jejueo is classified as critically endangered by UNESCO. Our translator helps preserve this important cultural heritage.
+                        </p>
+                        <button class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                            Learn More About Jejueo
+                        </button>
+                    </div>
+                    <div class="flex items-center justify-center">
+                        <div class="bg-white p-4 rounded-lg shadow-md max-w-xs">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Flag_of_Jeju_Province.svg/1200px-Flag_of_Jeju_Province.svg.png" alt="Jeju Island Flag" class="w-full rounded">
+                            <p class="text-center mt-2 text-sm text-gray-600">Flag of Jeju Province</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-gray-800 text-white py-8">
+            <div class="container mx-auto px-4">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4">Jejueo Translator</h3>
+                        <p class="text-gray-400">
+                            Preserving the language and culture of Jeju Island through advanced translation technology.
+                        </p>
+                    </div>
+
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
+                        <ul class="space-y-2">
+                            <li><a href="#" class="text-gray-400 hover:text-white">Home</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-white">Translator</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-white">Learning Resources</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-white">About Jejueo</a></li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4">Support</h3>
+                        <ul class="space-y-2">
+                            <li><a href="#" class="text-gray-400 hover:text-white">Help Center</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-white">Contact Us</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-white">Feedback</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-white">Report Issue</a></li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4">Connect</h3>
+                        <div class="flex space-x-4">
+                            <a href="#" class="text-gray-400 hover:text-white text-xl"><i class="fab fa-facebook"></i></a>
+                            <a href="#" class="text-gray-400 hover:text-white text-xl"><i class="fab fa-twitter"></i></a>
+                            <a href="#" class="text-gray-400 hover:text-white text-xl"><i class="fab fa-instagram"></i></a>
+                            <a href="#" class="text-gray-400 hover:text-white text-xl"><i class="fab fa-youtube"></i></a>
+                        </div>
+                        <p class="text-gray-400 mt-4">
+                            Subscribe to our newsletter for updates
+                        </p>
+                        <div class="mt-2 flex">
+                            <input type="email" placeholder="Your email" class="px-3 py-2 rounded-l-md text-gray-800 w-full max-w-xs">
+                            <button class="bg-blue-600 px-4 py-2 rounded-r-md hover:bg-blue-700">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-700 mt-8 pt-6 text-center text-gray-400">
+                    <p>&copy; 2023 Jejueo Translator Project. All rights reserved.</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Character count for input textarea
+            const inputText = document.getElementById('input-text');
+            const inputCount = document.getElementById('input-count');
+            const outputText = document.getElementById('output-text');
+            const outputCount = document.getElementById('output-count');
+            const translateBtn = document.getElementById('translate-btn');
+            const copyBtn = document.getElementById('copy-result');
+            const swapBtn = document.getElementById('swap-languages');
+
+            // Update character count
+            inputText.addEventListener('input', function() {
+                const count = this.value.length;
+                inputCount.textContent = `${count}/500`;
+
+                if (count > 500) {
+                    inputCount.classList.add('text-red-500');
+                } else {
+                    inputCount.classList.remove('text-red-500');
+                }
+            });
+
+            // Translation button click
+            translateBtn.addEventListener('click', function() {
+                const text = inputText.value.trim();
+                if (!text) return;
+
+                // Show loading state
+                translateBtn.innerHTML = '<i class="fas fa-spinner animate-spin mr-2"></i> Translating...';
+                translateBtn.disabled = true;
+
+                // Simulate API call with timeout
+                setTimeout(() => {
+                    // Sample translations based on selected languages
+                    const sourceLang = document.getElementById('source-lang').value;
+                    const targetLang = document.getElementById('target-lang').value;
+
+                    let translatedText = "";
+
+                    if (sourceLang === 'ko' && targetLang === 'jej') {
+                        // Korean to Jejueo
+                        if (text.includes("감사합니다")) {
+                            translatedText = "고맙수다";
+                        } else if (text.includes("안녕하세요")) {
+                            translatedText = "혼저 옵서예";
+                        } else if (text.includes("감자")) {
+                            translatedText = "감저";
+                        } else {
+                            translatedText = "제주어 번역: " + text + " (예시)";
+                        }
+                    } else if (sourceLang === 'jej' && targetLang === 'ko') {
+                        // Jejueo to Korean
+                        if (text.includes("고맙수다")) {
+                            translatedText = "감사합니다";
+                        } else if (text.includes("혼저 옵서예")) {
+                            translatedText = "안녕하세요";
+                        } else if (text.includes("감저")) {
+                            translatedText = "감자";
+                        } else {
+                            translatedText = "한국어 번역: " + text + " (예시)";
+                        }
+                    } else if (sourceLang === 'en' && targetLang === 'jej') {
+                        // English to Jejueo
+                        if (text.toLowerCase().includes("thank you")) {
+                            translatedText = "고맙수다";
+                        } else if (text.toLowerCase().includes("hello")) {
+                            translatedText = "혼저 옵서예";
+                        } else if (text.toLowerCase().includes("potato")) {
+                            translatedText = "감저";
+                        } else {
+                            translatedText = "Jejueo translation: " + text + " (example)";
+                        }
+                    } else {
+                        // Default case
+                        translatedText = "Translated: " + text + " (example translation)";
+                    }
+
+                    outputText.value = translatedText;
+                    outputCount.textContent = `${translatedText.length}/500`;
+
+                    // Reset button
+                    translateBtn.innerHTML = '<i class="fas fa-language mr-2"></i> Translate';
+                    translateBtn.disabled = false;
+                }, 1500);
+            });
+
+            // Copy result button
+            copyBtn.addEventListener('click', function() {
+                if (!outputText.value) return;
+
+                outputText.select();
+                document.execCommand('copy');
+
+                // Show feedback
+                const originalText = copyBtn.innerHTML;
+                copyBtn.innerHTML = '<i class="fas fa-check mr-1"></i> Copied!';
+
+                setTimeout(() => {
+                    copyBtn.innerHTML = originalText;
+                }, 2000);
+            });
+
+            // Swap languages button
+            swapBtn.addEventListener('click', function() {
+                const sourceLang = document.getElementById('source-lang');
+                const targetLang = document.getElementById('target-lang');
+
+                // Don't swap if source is "auto"
+                if (sourceLang.value === 'auto') return;
+
+                const temp = sourceLang.value;
+                sourceLang.value = targetLang.value;
+                targetLang.value = temp;
+
+                // Also swap the text if there's content
+                if (inputText.value && outputText.value) {
+                    const tempText = inputText.value;
+                    inputText.value = outputText.value;
+                    outputText.value = tempText;
+
+                    // Update counts
+                    inputCount.textContent = `${inputText.value.length}/500`;
+                    outputCount.textContent = `${outputText.value.length}/500`;
+                }
+            });
+
+            // Mobile menu toggle (placeholder)
+            document.querySelector('.md\\:hidden').addEventListener('click', function() {
+                alert('Mobile menu would open here in a full implementation.');
+            });
+        });
+    </script>
+</body>
+</html>

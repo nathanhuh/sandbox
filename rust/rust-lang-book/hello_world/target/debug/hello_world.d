@@ -1,0 +1,1 @@
+/Users/nathanhuh/Documents/Personal_Repos/sandbox/rust/rust-lang-book/hello_world/target/debug/hello_world: /Users/nathanhuh/Documents/Personal_Repos/sandbox/rust/rust-lang-book/hello_world/src/main.rs
