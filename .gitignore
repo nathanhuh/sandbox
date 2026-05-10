@@ -1,0 +1,16 @@
+# Rust build artifacts for any Cargo project in the repo
+target/
+
+# Rustfmt backup files
+**/*.rs.bk
+
+# Env/secrets
+.env
+.env.*
+!.env.example
+
+# Editor/OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
